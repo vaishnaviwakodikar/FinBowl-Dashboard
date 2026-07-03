@@ -4,18 +4,18 @@ import { Plus, HelpCircle, ChevronDown, Mail, AlertCircle, Loader2 } from 'lucid
 import Breadcrumb from '../components/Breadcrumb';
 import { submitLoan } from '../data/mockData';
 
-const EMPTY_BROKER = { name: '', type: 'Direct', code: 'CON-001', commission: '0.2750' };
+const EMPTY_BROKER = { name: '', type: '', code: '', commission: '' };
 
 const initialForm = {
   customerName: '',
   email: '',
-  phone: '+91 9876543210',
+  phone: '',
   loanAmount: '',
   productType: '',
   bank: '',
-  stage: 'Lead',
-  status: 'Active',
-  priority: 'Normal',
+  stage: '',
+  status: '',
+  priority: '',
   bankCommission: '',
   referralFee: '',
   creditExecutive: '',
@@ -55,10 +55,10 @@ const inputClass = (hasError) =>
     hasError ? 'border-red-400' : 'border-ink-300/30'
   }`;
 
-const selectClass = (hasError) =>
-  `w-full appearance-none rounded-md border px-3 py-1.5 text-sm text-ink-900 outline-none transition-colors focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15 bg-white ${
-    hasError ? 'border-red-400' : 'border-ink-300/30'
-  }`;
+const selectClass = (hasError, isPlaceholder) =>
+  `w-full appearance-none rounded-md border px-3 py-1.5 text-sm outline-none transition-colors focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15 bg-white ${
+    isPlaceholder ? 'text-ink-300' : 'text-ink-900'
+  } ${hasError ? 'border-red-400' : 'border-ink-300/30'}`;
 
 const toRawNumber = (v) => v.replace(/[₹,%\s]/g, '');
 
@@ -88,6 +88,9 @@ export default function LoanForm() {
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  const setBroker = (i, key) => (e) =>
+    setBrokers((list) => list.map((b, idx) => (idx === i ? { ...b, [key]: e.target.value } : b)));
+
   const withFormat = (key, formatter) => ({
     value: form[key],
     onChange: set(key),
@@ -103,6 +106,8 @@ export default function LoanForm() {
       next.loanAmount = 'Enter a valid amount.';
     if (!form.productType) next.productType = 'Select a product type.';
     if (!form.bank.trim()) next.bank = 'Bank is required.';
+    if (!form.stage) next.stage = 'Select a stage.';
+    if (!form.status) next.status = 'Select a status.';
     if (!form.bankCommission.trim()) next.bankCommission = 'Bank commission is required.';
     if (!form.referralFee.trim()) next.referralFee = 'Referral fee is required.';
     if (!form.creditExecutive.trim()) next.creditExecutive = 'Credit executive is required.';
@@ -188,7 +193,12 @@ export default function LoanForm() {
               </div>
             </Field>
             <Field label="Phone Number">
-              <input value={form.phone} onChange={set('phone')} className={inputClass(false)} />
+              <input
+                value={form.phone}
+                onChange={set('phone')}
+                placeholder="+91 9876543210"
+                className={inputClass(false)}
+              />
             </Field>
           </div>
         </FormSection>
@@ -209,10 +219,10 @@ export default function LoanForm() {
                 <select
                   value={form.productType}
                   onChange={set('productType')}
-                  className={selectClass(errors.productType)}
+                  className={selectClass(errors.productType, form.productType === '')}
                 >
                   <option value="" disabled>
-                    Home Loan
+                    Select product type
                   </option>
                   <option>Home Loan</option>
                   <option>Personal Loan</option>
@@ -223,11 +233,23 @@ export default function LoanForm() {
               </div>
             </Field>
             <Field label="Bank" required error={errors.bank}>
-              <input value={form.bank} onChange={set('bank')} className={inputClass(errors.bank)} />
+              <input
+                value={form.bank}
+                onChange={set('bank')}
+                placeholder="Enter bank name"
+                className={inputClass(errors.bank)}
+              />
             </Field>
-            <Field label="Stage" required>
+            <Field label="Stage" required error={errors.stage}>
               <div className="relative">
-                <select value={form.stage} onChange={set('stage')} className={selectClass(false)}>
+                <select
+                  value={form.stage}
+                  onChange={set('stage')}
+                  className={selectClass(errors.stage, form.stage === '')}
+                >
+                  <option value="" disabled>
+                    Select stage
+                  </option>
                   <option>Lead</option>
                   <option>Documentation</option>
                   <option>Bank Review</option>
@@ -237,9 +259,16 @@ export default function LoanForm() {
                 <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-500 pointer-events-none" />
               </div>
             </Field>
-            <Field label="Status" required>
+            <Field label="Status" required error={errors.status}>
               <div className="relative">
-                <select value={form.status} onChange={set('status')} className={selectClass(false)}>
+                <select
+                  value={form.status}
+                  onChange={set('status')}
+                  className={selectClass(errors.status, form.status === '')}
+                >
+                  <option value="" disabled>
+                    Select status
+                  </option>
                   <option>Active</option>
                   <option>On Hold</option>
                   <option>Closed</option>
@@ -249,7 +278,14 @@ export default function LoanForm() {
             </Field>
             <Field label="Priority">
               <div className="relative">
-                <select value={form.priority} onChange={set('priority')} className={selectClass(false)}>
+                <select
+                  value={form.priority}
+                  onChange={set('priority')}
+                  className={selectClass(false, form.priority === '')}
+                >
+                  <option value="" disabled>
+                    Select priority
+                  </option>
                   <option>Normal</option>
                   <option>High</option>
                   <option>Low</option>
@@ -302,11 +338,23 @@ export default function LoanForm() {
             {brokers.map((b, i) => (
               <div key={i} className="bg-ink-900/[0.025] rounded-lg p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-4">
                 <Field label="Broker Name" required>
-                  <input placeholder="Enter Broker Name" className={inputClass(false)} defaultValue={b.name} />
+                  <input
+                    value={b.name}
+                    onChange={setBroker(i, 'name')}
+                    placeholder="Enter Broker Name"
+                    className={inputClass(false)}
+                  />
                 </Field>
                 <Field label="Broker Type" required>
                   <div className="relative">
-                    <select defaultValue={b.type} className={selectClass(false)}>
+                    <select
+                      value={b.type}
+                      onChange={setBroker(i, 'type')}
+                      className={selectClass(false, b.type === '')}
+                    >
+                      <option value="" disabled>
+                        Select broker type
+                      </option>
                       <option>Direct</option>
                       <option>Aggregator</option>
                       <option>Connector</option>
@@ -316,10 +364,20 @@ export default function LoanForm() {
                   </div>
                 </Field>
                 <Field label="Broker Code" required>
-                  <input placeholder="CON-001" className={inputClass(false)} defaultValue={b.code} />
+                  <input
+                    value={b.code}
+                    onChange={setBroker(i, 'code')}
+                    placeholder="CON-001"
+                    className={inputClass(false)}
+                  />
                 </Field>
                 <Field label="Commission %" required>
-                  <input placeholder="0.2750" className={inputClass(false)} defaultValue={b.commission} />
+                  <input
+                    value={b.commission}
+                    onChange={setBroker(i, 'commission')}
+                    placeholder="0.2750"
+                    className={inputClass(false)}
+                  />
                 </Field>
               </div>
             ))}
