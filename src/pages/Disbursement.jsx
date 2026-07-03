@@ -33,6 +33,27 @@ const COLUMNS = [
 
 const PAGE_SIZE = 10;
 
+// Builds a "1 2 3 ... 8 9 10" style page list instead of always
+// truncating to the first 6 pages. Always keeps the first 3, the
+// last 3, and a window around the current page.
+function getPageNumbers(current, total) {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  const keep = new Set([1, 2, 3, total - 2, total - 1, total, current - 1, current, current + 1]);
+  const pages = [...keep].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+
+  const withDots = [];
+  let prev = 0;
+  for (const p of pages) {
+    if (p - prev > 1) withDots.push('...');
+    withDots.push(p);
+    prev = p;
+  }
+  return withDots;
+}
+
 export default function Disbursement() {
   const [rows, setRows] = useState([]);
   const [state, setState] = useState('loading'); // loading | ready | error | empty
@@ -63,7 +84,14 @@ export default function Disbursement() {
   }, [rows, query]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+
+  // FIX: keep the current page in range if a search shrinks the result set
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [totalPages, page]);
+
   const pageRows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const pageNumbers = getPageNumbers(page, totalPages);
 
   return (
     <div>
@@ -212,17 +240,23 @@ export default function Disbursement() {
                 >
                   <ChevronLeft size={14} />
                 </button>
-                {Array.from({ length: totalPages }).slice(0, 6).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPage(i + 1)}
-                    className={`w-7 h-7 rounded-md text-sm ${
-                      page === i + 1 ? 'bg-brand-500 text-white' : 'text-ink-700 hover:bg-ink-900/5'
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
+                {pageNumbers.map((p, i) =>
+                  p === '...' ? (
+                    <span key={`dots-${i}`} className="w-7 h-7 flex items-center justify-center text-ink-400 text-sm">
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`w-7 h-7 rounded-md text-sm ${
+                        page === p ? 'bg-brand-500 text-white' : 'text-ink-700 hover:bg-ink-900/5'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}

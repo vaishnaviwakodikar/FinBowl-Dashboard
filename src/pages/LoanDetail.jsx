@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Archive, ClipboardList, Pencil, FileText, Loader2, AlertCircle, RefreshCcw } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
@@ -43,9 +43,11 @@ export default function LoanDetail() {
   const [active, setActive] = useState('customer');
   const refs = useRef({});
 
+  // FIX: caseId wasn't being passed to fetchLoanDetail, so every loan
+  // showed the same mock record regardless of which one was opened.
   const load = () => {
     setState('loading');
-    fetchLoanDetail()
+    fetchLoanDetail(caseId)
       .then((data) => {
         setLoan(data);
         setState('ready');
