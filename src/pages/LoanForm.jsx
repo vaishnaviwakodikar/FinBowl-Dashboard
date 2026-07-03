@@ -187,7 +187,7 @@ export default function LoanForm() {
                 <input
                   value={form.email}
                   onChange={set('email')}
-                  placeholder="billing@untitledui.com"
+                  placeholder="Enter email address"
                   className={`${inputClass(false)} pl-8`}
                 />
               </div>
@@ -196,7 +196,7 @@ export default function LoanForm() {
               <input
                 value={form.phone}
                 onChange={set('phone')}
-                placeholder="+91 9876543210"
+                placeholder="Enter phone number"
                 className={inputClass(false)}
               />
             </Field>
@@ -209,7 +209,7 @@ export default function LoanForm() {
             <Field label="Loan Amount" required error={errors.loanAmount}>
               <input
                 {...withFormat('loanAmount', formatCurrencyOnBlur)}
-                placeholder="480000"
+                placeholder="Enter loan amount"
                 inputMode="numeric"
                 className={inputClass(errors.loanAmount)}
               />
@@ -302,14 +302,14 @@ export default function LoanForm() {
             <Field label="Bank Commission %" required error={errors.bankCommission}>
               <input
                 {...withFormat('bankCommission', formatPercentOnBlur)}
-                placeholder="0.5500"
+                placeholder="% of commision"
                 className={inputClass(errors.bankCommission)}
               />
             </Field>
             <Field label="Referral Fee" required error={errors.referralFee}>
               <input
                 {...withFormat('referralFee', formatPercentOnBlur)}
-                placeholder="0.5500"
+                placeholder="% of referral fee"
                 className={inputClass(errors.referralFee)}
               />
             </Field>
@@ -317,7 +317,7 @@ export default function LoanForm() {
               <input
                 value={form.creditExecutive}
                 onChange={set('creditExecutive')}
-                placeholder="Amit Sharma"
+                placeholder="Enter credit executive details"
                 className={inputClass(errors.creditExecutive)}
               />
             </Field>
@@ -325,7 +325,7 @@ export default function LoanForm() {
               <input
                 value={form.bankExecutive}
                 onChange={set('bankExecutive')}
-                placeholder="Amit Sharma"
+                placeholder="Enter bank executive name"
                 className={inputClass(errors.bankExecutive)}
               />
             </Field>
@@ -367,7 +367,7 @@ export default function LoanForm() {
                   <input
                     value={b.code}
                     onChange={setBroker(i, 'code')}
-                    placeholder="CON-001"
+                    placeholder="Enter Broker Code"
                     className={inputClass(false)}
                   />
                 </Field>
@@ -375,7 +375,7 @@ export default function LoanForm() {
                   <input
                     value={b.commission}
                     onChange={setBroker(i, 'commission')}
-                    placeholder="0.2750"
+                    placeholder="% of commission"
                     className={inputClass(false)}
                   />
                 </Field>
