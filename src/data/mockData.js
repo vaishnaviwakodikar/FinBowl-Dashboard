@@ -77,17 +77,6 @@ export const LOAN_DETAIL = {
   ],
 };
 
-// FIX: fetchLoanDetail now looks up by caseId instead of always returning
-// the same record. Only one fully-detailed mock loan exists for now
-// (LOAN_DETAIL), so it's keyed here. Add more entries as you build out
-// detail data for the other loan IDs used in the Loans / Disbursement
-// tables (e.g. 'LN002-24-1001') — until then, opening those will
-// correctly fall through to the "Couldn't load this loan" error state
-// in LoanDetail.jsx instead of silently showing Rahul Verma's data.
-const LOANS = {
-  [LOAN_DETAIL.caseId]: LOAN_DETAIL,
-};
-
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
@@ -101,13 +90,9 @@ export async function fetchDisbursements({ simulateError = false, simulateEmpty 
   return DISBURSEMENTS;
 }
 
-export async function fetchLoanDetail(caseId) {
+export async function fetchLoanDetail() {
   await delay(500);
-  const loan = LOANS[caseId];
-  if (!loan) {
-    throw new Error(`No loan found for case ID "${caseId}".`);
-  }
-  return loan;
+  return LOAN_DETAIL;
 }
 
 export async function submitLoan(payload) {
